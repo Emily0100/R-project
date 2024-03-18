@@ -1,0 +1,50 @@
+#In this project, the focus will be on refining the penguin dataset to exclusively examine 
+# female penguins across various species. The objective is to explore how the population count of female penguins 
+# fluctuates over the years.
+
+install.packages("palmerpenguins")
+install.packages("ggplot2")
+install.packages("tidyverse")
+install.packages("skimr")
+install.packages("janitor")
+library(palmerpenguins)
+library(ggplot2)
+library(tidyverse)
+library(skimr)
+
+#let's take a look at the data
+head(penguins)
+colnames(penguins)
+skim_without_charts(penguins)
+
+#Filter the data to be only female penguins
+penguins_clean <- subset(penguins, sex == "female")
+
+#Count how many female penguins there are for each species
+female_count <- table(penguins_clean$species)
+print(female_count)
+
+
+#Identify the year with the highest female count
+max_year <- aggregate(year ~ species, data = penguins_clean, FUN = function(x) {
+  counts <- table(x)
+  year_with_max_count <- names(counts)[which.max(counts)]
+  return(year_with_max_count)
+})
+
+#Identify the year with the least female count
+
+min_year <- aggregate(year ~ species, data = penguins_clean, FUN = function(x){
+  counts <- table(x)
+  year_with_min <- names(counts)[which.min(counts)]
+  return(year_with_min)
+})
+
+# Visualize 
+ggplot(max_year, aes(x = species, y = year)) +
+  geom_bar(stat = "identity", fill = "skyblue", alpha = 0.7) +
+  geom_smooth(method = "loess", se = FALSE, color = "red") +
+  labs(title = "Number of Female Penguins Over the Years",
+       x = "Year",
+       y = "Number of Female Penguins") +
+  theme_minimal()
